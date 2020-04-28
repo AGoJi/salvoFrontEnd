@@ -4,20 +4,16 @@
       <h2>Games</h2>
       <ol>
         <li v-for="game in getGames" :key="game.id">
-          <router-link v-if="getCurrentUser && getGpId(game)" :to="'/gameview/'+ getGpId(game)">
-            {{game.created}} - {{game.gamePlayers[0].player.username}} V.S
-            <span
-              v-if="game.gamePlayers[1]"
-            >{{game.gamePlayers[1].player.username}}</span>
-            <span v-else>Waiting for an opponent...</span>
-          </router-link>
-          <template v-else>
+          <template>
             {{game.created}} - {{game.gamePlayers[0].player.username}} V.S
             <span
               v-if="game.gamePlayers[1]"
             >{{game.gamePlayers[1].player.username}}</span>
             <span v-else>Waiting for an opponent...</span>
           </template>
+          <router-link v-if="getCurrentUser && getGpId(game)" :to="'/gameView/' + getGpId(game)">
+            <button>Rejoin game!</button>
+          </router-link>
           <button
             v-if="getCurrentUser != null && game.gamePlayers.length < 2 && game.gamePlayers[0].player.id != getCurrentUser.id"
             @click="joinGamePost(game.id)"
@@ -40,7 +36,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(value, key, index) in leaderBoard" :key="index">
+            <tr v-for="(value, key, index) in sortLB" :key="index">
               <td class="text-center">{{key}}</td>
               <td class="text-center">{{value.wins}}</td>
               <td class="text-center">{{value.losses}}</td>
@@ -64,12 +60,26 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["getGames", "getCurrentUser"])
+    ...mapGetters(["getGames", "getCurrentUser"]),
+    sortLB() {
+      let sorted = {};
+      Object.keys(this.leaderBoard)
+        .sort((a, b) => {
+          return (
+            this.leaderBoard[b].totalScore - this.leaderBoard[a].totalScore
+          );
+        })
+        .forEach(key => {
+          sorted[key] = this.leaderBoard[key];
+        });
+      return sorted;
+    }
   },
   methods: {
     ...mapActions(["getGameData"]),
     joinGamePost(gID) {
-      fetch(`/api/game/${gID}/players`, {
+      let url = "https://sleepy-everglades-99280.herokuapp.com";
+      fetch(url + `/api/game/${gID}/players`, {
         credentials: "include",
         headers: {
           "Content-Type": "application/json"
@@ -101,7 +111,8 @@ export default {
       return null;
     },
     createGamePost() {
-      fetch("/api/games", {
+      let url = "https://sleepy-everglades-99280.herokuapp.com";
+      fetch(url + "/api/games", {
         credentials: "include",
         headers: {
           "Content-Type": "application/json"
@@ -125,7 +136,8 @@ export default {
         });
     },
     getLBdata() {
-      fetch("/api/leader_board", {
+      let url = "https://sleepy-everglades-99280.herokuapp.com";
+      fetch(url + "/api/leader_board", {
         method: "GET"
       })
         .then(response => {
@@ -154,5 +166,7 @@ export default {
 button {
   border: solid;
   border-width: 1px;
+  border-color: black;
+  color: black;
 }
 </style>

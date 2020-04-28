@@ -5,17 +5,16 @@
       <span v-if="gameplayer.id == gpID">You: {{gameplayer.player.username}}</span>
       <span v-else>Opponent: {{gameplayer.player.username}}</span>
     </p>
+    <p>Game Status: {{gameView.status}}</p>
     <div class="flexgrids">
       <div>
         <h3>Ship Grid</h3>
         <div class="grid-container" @dragover.prevent @drop.prevent="drop">
           <div v-for="(col, i) in grid.cols" :key="i">
-            <div v-for="(cell, i) in grid.rows" :key="i" :id="cell+col+'m'" class="grid-item">
-              <!--{{cell+col}}-->
-            </div>
+            <div v-for="(cell, i) in grid.rows" :key="i" :id="cell+col+'m'" class="grid-item"></div>
           </div>
         </div>
-        <button @click="placeShipsPost()">Place ships!</button>
+        <button v-if="gameView && gameView.ships.length < 5" @click="placeShipsPost()">Place ships!</button>
         <div v-if="gameView && gameView.ships.length < 5">
           <h3>Ships to place:</h3>
           <div class="grid-container shipContainer">
@@ -87,6 +86,12 @@
           </div>
         </div>
       </div>
+      <v-overlay v-if="errors" opacity="0.1">
+        <v-alert type="error" prominent>{{errors}}</v-alert>
+      </v-overlay>
+      <v-overlay v-if="successes" opacity="0.1">
+        <v-alert type="success" prominent>{{successes}}</v-alert>
+      </v-overlay>
       <div>
         <h3>Salvo Grid</h3>
         <div class="grid-container">
@@ -97,12 +102,13 @@
               :id="cell+col+'y'"
               class="grid-item"
               @click="placeSalvoes(cell, col)"
-            >
-              <!--{{cell+col}}-->
-            </div>
+            ></div>
           </div>
         </div>
-        <button @click="placeSalvoesPost">Fire Salvoes!</button>
+        <button
+          v-if="gameView && gameView.gameplayers.length == 2 && gameView.ships.length == 5"
+          @click="placeSalvoesPost"
+        >Fire Salvoes!</button>
         <h3>Opponent's Ships:</h3>
         <div class="grid-container shipContainer">
           <div id="enemyShip1" class="ship1"></div>
@@ -128,6 +134,10 @@ export default {
         rows: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
       },
       gameView: null,
+      status: null,
+      interval: null,
+      errors: null,
+      successes: null,
       shipData: [
         { shipType: "Patrol Boat", shipLocations: [] },
         { shipType: "Destroyer", shipLocations: [] },
@@ -160,6 +170,7 @@ export default {
       } else {
         this.shipData[ship.dataset.position].shipLocations = saveLocations;
         console.log("Invalid ship location, try again!");
+        this.errors = "Invalid ship location, try again!";
       }
     },
     dragStart(e) {
@@ -207,6 +218,7 @@ export default {
           ? (ship.dataset.orientation = "h")
           : (ship.dataset.orientation = "v");
         console.log("Can't rotate the ship in this position!");
+        this.errors = "Can't rotate the ship in this position!";
       }
     },
     placeShipsErrors(ship, id) {
@@ -263,7 +275,8 @@ export default {
       }
     },
     placeShipsPost() {
-      fetch(`/api/games/players/${this.gpID}/ships`, {
+      let url = "https://sleepy-everglades-99280.herokuapp.com";
+      fetch(url + `/api/games/players/${this.gpID}/ships`, {
         credentials: "include",
         headers: {
           "Content-Type": "application/json"
@@ -271,15 +284,22 @@ export default {
         method: "POST",
         body: JSON.stringify(this.shipData)
       })
-        .then(function(data) {
+        .then(data => {
           console.log("Request success: ", data);
+          this.getGVdata();
+          return data.text();
+        })
+        .then(data => {
+          console.log(data);
+          this.successes = "Ships successfully placed!";
         })
         .catch(function(error) {
           console.log("Request failure: ", error);
         });
     },
     placeSalvoesPost() {
-      fetch(`/api/games/players/${this.gpID}/salvoes`, {
+      let url = "https://sleepy-everglades-99280.herokuapp.com";
+      fetch(url + `/api/games/players/${this.gpID}/salvoes`, {
         credentials: "include",
         headers: {
           "Content-Type": "application/json"
@@ -291,13 +311,19 @@ export default {
           console.log("Request success: ", data);
           this.getGVdata();
           this.salvoData.salvoLocation = [];
+          return data.text();
+        })
+        .then(data => {
+          console.log(data);
+          this.successes = "Salvoes successfully fired!";
         })
         .catch(function(error) {
           console.log("Request failure: ", error);
         });
     },
     getGVdata() {
-      fetch(`/api/game_view/${this.gpID}`, {
+      let url = "https://sleepy-everglades-99280.herokuapp.com";
+      fetch(url + `/api/game_view/${this.gpID}`, {
         method: "GET"
       })
         .then(response => {
@@ -309,6 +335,7 @@ export default {
         .then(json => {
           //console.log(json);
           this.gameView = json;
+          this.status = json.status;
         })
         .catch(error => {
           console.log("Request failed: " + error.message);
@@ -384,7 +411,31 @@ export default {
           this.markSunkShips();
         }
       }, 1);
+    },
+    status() {
+      if (this.status.includes("Waiting")) {
+        this.interval = setInterval(() => {
+          //console.log("calling");
+          this.getGVdata();
+        }, 3000);
+      } else {
+        clearInterval(this.interval);
+      }
+    },
+    errors() {
+      setTimeout(() => {
+        this.errors = null;
+      }, 3000);
+    },
+    successes() {
+      setTimeout(() => {
+        this.successes = null;
+      }, 3000);
     }
+  },
+  beforeDestroy() {
+    clearInterval(this.interval);
+    //console.log("destroy");
   },
   created() {
     this.getGVdata();
@@ -492,6 +543,7 @@ export default {
 button {
   border: solid;
   border-width: 1px;
+  border-color: black;
 }
 .shipContainer {
   position: relative;

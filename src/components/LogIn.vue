@@ -39,7 +39,8 @@ export default {
   methods: {
     ...mapActions(["loginPost", "getGameData"]),
     logoutPost() {
-      fetch("/api/logout", {
+      let url = "https://sleepy-everglades-99280.herokuapp.com";
+      fetch(url + "/api/logout", {
         credentials: "include",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
