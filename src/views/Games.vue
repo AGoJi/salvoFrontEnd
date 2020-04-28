@@ -138,6 +138,7 @@ export default {
     getLBdata() {
       let url = "https://sleepy-everglades-99280.herokuapp.com";
       fetch(url + "/api/leader_board", {
+        credentials: "include",
         method: "GET"
       })
         .then(response => {

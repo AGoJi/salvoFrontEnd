@@ -17,6 +17,7 @@ export default new Vuex.Store({
     getGameData(context) {
       let url = "https://sleepy-everglades-99280.herokuapp.com";
       fetch(url + "/api/games", {
+        credentials: "include",
         method: "GET",
       })
         .then((response) => {

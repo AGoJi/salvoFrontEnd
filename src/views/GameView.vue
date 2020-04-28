@@ -324,6 +324,7 @@ export default {
     getGVdata() {
       let url = "https://sleepy-everglades-99280.herokuapp.com";
       fetch(url + `/api/game_view/${this.gpID}`, {
+        credentials: "include",
         method: "GET"
       })
         .then(response => {
