@@ -48,13 +48,14 @@ export default {
         method: "POST"
       })
         .then(data => {
-          console.log("Request success: ", data);
+          //console.log("Request success: ", data);
           if (data.status == 200) {
             this.getGameData();
           }
         })
         .catch(error => {
-          console.log("Request failure: ", error);
+          this.error = error;
+          //console.log("Request failure: ", error);
         });
     }
   }

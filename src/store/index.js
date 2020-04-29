@@ -31,7 +31,8 @@ export default new Vuex.Store({
           context.commit("setGames", json.games);
         })
         .catch((error) => {
-          console.log("Request failed: " + error.message);
+          this.error = error;
+          //console.log("Request failed: " + error.message);
         });
     },
     loginPost(context, userData) {
@@ -45,13 +46,14 @@ export default new Vuex.Store({
         body: getBody(userData),
       })
         .then((data) => {
-          console.log("Request success: ", data);
+          //console.log("Request success: ", data);
           if (data.status == 200) {
             context.dispatch("getGameData");
           }
         })
         .catch((error) => {
-          console.log("Request failure: ", error);
+          this.error = error;
+          //console.log("Request failure: ", error);
         });
       function getBody(json) {
         var body = [];
@@ -60,7 +62,7 @@ export default new Vuex.Store({
           var encVal = encodeURIComponent(json[key]);
           body.push(encKey + "=" + encVal);
         }
-        console.log(body.join("&"));
+        //console.log(body.join("&"));
         return body.join("&");
       }
     },
@@ -75,7 +77,7 @@ export default new Vuex.Store({
         body: JSON.stringify(userData),
       })
         .then((data) => {
-          console.log("Request success: ", data);
+          //console.log("Request success: ", data);
           if (data.ok) {
             context.dispatch("loginPost", {
               userName: userData.userName,
@@ -85,7 +87,8 @@ export default new Vuex.Store({
           }
         })
         .catch((error) => {
-          console.log("Request failure: ", error);
+          this.error = error;
+          //console.log("Request failure: ", error);
         });
     },
   },

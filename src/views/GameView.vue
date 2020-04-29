@@ -169,7 +169,7 @@ export default {
         this.setShipData(ship);
       } else {
         this.shipData[ship.dataset.position].shipLocations = saveLocations;
-        console.log("Invalid ship location, try again!");
+        //console.log("Invalid ship location, try again!");
         this.errors = "Invalid ship location, try again!";
       }
     },
@@ -217,7 +217,7 @@ export default {
         ship.dataset.orientation == "v"
           ? (ship.dataset.orientation = "h")
           : (ship.dataset.orientation = "v");
-        console.log("Can't rotate the ship in this position!");
+        //console.log("Can't rotate the ship in this position!");
         this.errors = "Can't rotate the ship in this position!";
       }
     },
@@ -285,16 +285,18 @@ export default {
         body: JSON.stringify(this.shipData)
       })
         .then(data => {
-          console.log("Request success: ", data);
+          //console.log("Request success: ", data);
           this.getGVdata();
           return data.text();
         })
         .then(data => {
-          console.log(data);
+          this.data = data;
+          //console.log(data);
           this.successes = "Ships successfully placed!";
         })
         .catch(function(error) {
-          console.log("Request failure: ", error);
+          this.error = error;
+          //console.log("Request failure: ", error);
         });
     },
     placeSalvoesPost() {
@@ -308,17 +310,19 @@ export default {
         body: JSON.stringify(this.salvoData)
       })
         .then(data => {
-          console.log("Request success: ", data);
+          //console.log("Request success: ", data);
           this.getGVdata();
           this.salvoData.salvoLocation = [];
           return data.text();
         })
         .then(data => {
-          console.log(data);
+          this.data = data;
+          //console.log(data);
           this.successes = "Salvoes successfully fired!";
         })
         .catch(function(error) {
-          console.log("Request failure: ", error);
+          this.error = error;
+          //console.log("Request failure: ", error);
         });
     },
     getGVdata() {
@@ -339,7 +343,8 @@ export default {
           this.status = json.status;
         })
         .catch(error => {
-          console.log("Request failed: " + error.message);
+          this.error = error;
+          //console.log("Request failed: " + error.message);
         });
     },
     printShips() {

@@ -20,7 +20,7 @@
           >Join game!</button>
         </li>
       </ol>
-      <button @click="createGamePost">Create New Game!</button>
+      <button v-if="getCurrentUser" @click="createGamePost">Create New Game!</button>
     </div>
     <div>
       <h2>LeaderBoard</h2>
@@ -87,18 +87,19 @@ export default {
         method: "POST"
       })
         .then(function(response) {
-          console.log("Request success: ", response);
+          //console.log("Request success: ", response);
           return response.json();
         })
         .then(function(data) {
           if (data.error) {
-            console.log(data.error);
+            //console.log(data.error);
           } else {
             router.push("/gameview/" + data.gpID);
           }
         })
         .catch(function(error) {
-          console.log("Request failure: ", error);
+          this.error = error;
+          //console.log("Request failure: ", error);
         });
     },
     getGpId(game) {
@@ -120,19 +121,20 @@ export default {
         method: "POST"
       })
         .then(function(response) {
-          console.log("Request success: ", response);
+          //console.log("Request success: ", response);
           return response.json();
         })
         .then(function(data) {
           if (data.error) {
-            console.log(data.error);
+            //console.log(data.error);
           } else {
             router.push("/gameview/" + data.gpID);
           }
-          console.log(data);
+          //console.log(data);
         })
         .catch(function(error) {
-          console.log("Request failure: ", error);
+          this.error = error;
+          //console.log("Request failure: ", error);
         });
     },
     getLBdata() {
@@ -152,7 +154,8 @@ export default {
           this.leaderBoard = json;
         })
         .catch(error => {
-          console.log("Request failed:" + error.message);
+          this.error = error;
+          //console.log("Request failed:" + error.message);
         });
     }
   },
