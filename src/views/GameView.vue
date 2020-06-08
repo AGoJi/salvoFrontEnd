@@ -106,7 +106,7 @@
           </div>
         </div>
         <button
-          v-if="gameView && gameView.gameplayers.length == 2 && gameView.ships.length == 5"
+          v-if="gameView && gameView.gameplayers.length == 2 && gameView.ships.length == 5 && !gameView.status.includes('Waiting') && !gameView.status.includes('Victory') && !gameView.status.includes('Defeat')"
           @click="placeSalvoesPost"
         >Fire Salvoes!</button>
         <h3>Opponent's Ships:</h3>
@@ -275,8 +275,9 @@ export default {
       }
     },
     placeShipsPost() {
-      let url = "https://sleepy-everglades-99280.herokuapp.com";
-      fetch(url + `/api/games/players/${this.gpID}/ships`, {
+      //let url = "https://sleepy-everglades-99280.herokuapp.com";
+      fetch(`/api/games/players/${this.gpID}/ships`, {
+        //url + ...
         credentials: "include",
         headers: {
           "Content-Type": "application/json"
@@ -300,8 +301,9 @@ export default {
         });
     },
     placeSalvoesPost() {
-      let url = "https://sleepy-everglades-99280.herokuapp.com";
-      fetch(url + `/api/games/players/${this.gpID}/salvoes`, {
+      //let url = "https://sleepy-everglades-99280.herokuapp.com";
+      fetch(`/api/games/players/${this.gpID}/salvoes`, {
+        //url + ...
         credentials: "include",
         headers: {
           "Content-Type": "application/json"
@@ -311,23 +313,25 @@ export default {
       })
         .then(data => {
           //console.log("Request success: ", data);
-          this.getGVdata();
-          this.salvoData.salvoLocation = [];
-          return data.text();
+          if (data.ok) {
+            this.successes = "Salvoes successfully placed!";
+            this.getGVdata();
+            this.salvoData.salvoLocation = [];
+          }
+          if (data.status == 403) {
+            this.errors = "Salvoes must be fired in sets of 5!";
+          }
+          //return data.text();
         })
-        .then(data => {
-          this.data = data;
-          //console.log(data);
-          this.successes = "Salvoes successfully fired!";
-        })
-        .catch(function(error) {
+        .catch(error => {
           this.error = error;
           //console.log("Request failure: ", error);
         });
     },
     getGVdata() {
-      let url = "https://sleepy-everglades-99280.herokuapp.com";
-      fetch(url + `/api/game_view/${this.gpID}`, {
+      //let url = "https://sleepy-everglades-99280.herokuapp.com";
+      fetch(`/api/game_view/${this.gpID}`, {
+        //url + ...
         credentials: "include",
         method: "GET"
       })
@@ -399,10 +403,21 @@ export default {
       }
     },
     markSunkShips() {
-      this.gameView.battleStatus.fleetStatus.forEach((ship, i) => {
-        if (ship.isSunk) {
-          document.getElementById("enemyShip" + (i + 1)).style.backgroundColor =
-            "red";
+      this.gameView.battleStatus.fleetStatus.forEach(ship => {
+        if (ship.isSunk == true && ship.shipType == "Patrol Boat") {
+          document.getElementById("enemyShip1").style.backgroundColor = "red";
+        }
+        if (ship.isSunk == true && ship.shipType == "Destroyer") {
+          document.getElementById("enemyShip2").style.backgroundColor = "red";
+        }
+        if (ship.isSunk == true && ship.shipType == "Submarine") {
+          document.getElementById("enemyShip3").style.backgroundColor = "red";
+        }
+        if (ship.isSunk == true && ship.shipType == "Battleship") {
+          document.getElementById("enemyShip4").style.backgroundColor = "red";
+        }
+        if (ship.isSunk == true && ship.shipType == "Carrier") {
+          document.getElementById("enemyShip5").style.backgroundColor = "red";
         }
       });
     }

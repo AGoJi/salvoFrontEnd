@@ -1,5 +1,6 @@
 <template>
   <nav>
+    <p v-if="getCurrentUser">Logged in as {{getCurrentUser.userName}}</p>
     <ul>
       <li>
         <router-link to="/">Home</router-link>

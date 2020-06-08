@@ -15,11 +15,14 @@
       </label>
       <button @click="signupPost(userData)">Sign up</button>
     </form>
+    <v-overlay v-if="getErrors" opacity="0.1">
+      <v-alert type="error" prominent>{{getErrors}}</v-alert>
+    </v-overlay>
   </div>
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 export default {
   data() {
     return {
@@ -30,9 +33,18 @@ export default {
       }
     };
   },
-  computed: {},
+  computed: {
+    ...mapGetters(["getErrors"])
+  },
+  watch: {
+    getErrors() {
+      setTimeout(() => {
+        this.errorsTimeOut();
+      }, 3000);
+    }
+  },
   methods: {
-    ...mapActions(["signupPost"])
+    ...mapActions(["signupPost", "errorsTimeOut"])
   }
 };
 </script>

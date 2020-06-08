@@ -78,8 +78,9 @@ export default {
   methods: {
     ...mapActions(["getGameData"]),
     joinGamePost(gID) {
-      let url = "https://sleepy-everglades-99280.herokuapp.com";
-      fetch(url + `/api/game/${gID}/players`, {
+      //let url = "https://sleepy-everglades-99280.herokuapp.com";
+      fetch(`/api/game/${gID}/players`, {
+        // url + ...
         credentials: "include",
         headers: {
           "Content-Type": "application/json"
@@ -112,8 +113,9 @@ export default {
       return null;
     },
     createGamePost() {
-      let url = "https://sleepy-everglades-99280.herokuapp.com";
-      fetch(url + "/api/games", {
+      //let url = "https://sleepy-everglades-99280.herokuapp.com";
+      fetch("/api/games", {
+        //url + ...
         credentials: "include",
         headers: {
           "Content-Type": "application/json"
@@ -138,8 +140,9 @@ export default {
         });
     },
     getLBdata() {
-      let url = "https://sleepy-everglades-99280.herokuapp.com";
-      fetch(url + "/api/leader_board", {
+      //let url = "https://sleepy-everglades-99280.herokuapp.com";
+      fetch("/api/leader_board", {
+        // url + ...
         credentials: "include",
         method: "GET"
       })
